@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox Alchemy — Turn Slow Replies Into Booked Revenue</title>
+<style>
+  :root {
+    --navy: #0b1f3a;
+    --navy-dark: #06142a;
+    --gold: #d4a24c;
+    --gold-light: #f0c674;
+    --ink: #16233a;
+    --gray: #5c6b81;
+    --light-bg: #f7f8fb;
+    --white: #ffffff;
+    --success: #2ea87f;
+    --shadow: 0 20px 50px rgba(11,31,58,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--navy);
+  }
+
+  a { text-decoration: none; color: inherit; }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 34px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--navy-dark);
+    box-shadow: 0 10px 30px rgba(212,162,76,0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 36px rgba(212,162,76,0.55);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.5);
+    color: var(--white);
+  }
+
+  .btn-outline:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: var(--white);
+  }
+
+  .btn-dark {
+    background: var(--navy);
+    color: var(--white);
+  }
+
+  .btn-dark:hover {
+    background: var(--navy-dark);
+    transform: translateY(-3px);
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,31,58,0.96);
+    backdrop-filter: blur(8px);
+    padding: 18px 0;
+  }
+
+  nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo span {
+    color: var(--gold-light);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--gold-light); }
+
+  .nav-cta {
+    background: var(--gold);
+    color: var(--navy-dark);
+    padding: 10px 22px;
+    border-radius: 40px;
+    font-weight: 700;
+  }
+
+  .nav-cta:hover { background: var(--gold-light); }
+
+  /* HERO */
+  .hero {
+    background: radial-gradient(circle at 20% 20%, #123064 0%, var(--navy) 45%, var(--navy-dark) 100%);
+    color: var(--white);
+    padding: 110px 0 130px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212,162,76,0.18), transparent 70%);
+    top: -200px;
+    right: -150px;
+  }
+
+  .hero-content {
+    max-width: 760px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .tag-pill {
+    display: inline-block;
+    background: rgba(212,162,76,0.15);
+    color: var(--gold-light);
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 24px;
+    border: 1px solid rgba(212,162,76,0.35);
+  }
+
+  .hero h1 {
+    font-size: 3.4rem;
+    line-height: 1.12;
+    color: var(--white);
+    margin-bottom: 22px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--gold-light);
+  }
+
+  .hero p.lead {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.82);
+    margin-bottom: 36px;
+    max-width: 620px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stats div {
+    border-left: 3px solid var(--gold);
+    padding-left: 16px;
+  }
+
+  .hero-stats strong {
+    display: block;
+    font-size: 1.9rem;
+    color: var(--white);
+    font-weight: 800;
+  }
+
+  .hero-stats span {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 60px;
+  }
+
+  .section-label {
+    color: var(--gold);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .section-header h2 {
+    font-size: 2.4rem;
+    margin-bottom: 14px;
+  }
+
+  .section-header p {
+    color: var(--gray);
+    font-size: 1.05rem;
+  }
+
+  section { padding: 100px 0; }
+
+  /* PROBLEM STRIP */
+  .problem-strip {
+    background: var(--light-bg);
+    padding: 70px 0;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    text-align: center;
+  }
+
+  .problem-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 34px 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .problem-card .num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #e0576b;
+    margin-bottom: 10px;
+  }
+
+  .problem-card p {
+    color: var(--gray);
+    font-size: 0.98rem;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .feature-card {
+    background: var(--white);
+    border: 1px solid #ecedf2;
+    border-radius: 18px;
+    padding: 36px 30px;
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow);
+    border-color: transparent;
+  }
+
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--navy), #1c3a68);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 22px;
+    color: var(--gold-light);
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .feature-card p {
+    color: var(--gray);
+    font-size: 0.97rem;
+  }
+
+  /* ABOUT */
+  .about {
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 0;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .about h2 {
+    color: var(--white);
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
+
+  .about p {
+    color: rgba(255,255,255,0.78);
+    margin-bottom: 18px;
+    font-size: 1.02rem;
+  }
+
+  .about-list {
+    list-style: none;
+    margin-top: 24px;
+  }
+
+  .about-list li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    color: rgba(255,255,255,0.88);
+    font-size: 0.98rem;
+  }
+
+  .about-list li::before {
+    content: "✓";
+    background: var(--gold);
+    color: var(--navy-dark);
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+  }
+
+  .about-visual {
+    background: linear-gradient(160deg, rgba(212,162,76,0.15), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 22px;
+    padding: 40px;
+  }
+
+  .stat-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .stat-box div {
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .stat-box strong {
+    font-size: 2.1rem;
+    color: var(--gold-light);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat-box span {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    align-items: stretch;
+  }
+
+  .price-card {
+    background: var(--white);
+    border: 1px solid #ecedf2;
+    border-radius: 20px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .price-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow);
+  }
+
+  .price-card.featured {
+    background: linear-gradient(160deg, var(--navy), var(--navy-dark));
+    color: var(--white);
+    border: none;
+    transform: scale(1.03);
+    box-shadow: 0 30px 60px rgba(11,31,58,0.3);
+  }
+
+  .price-card.featured h3,
+  .price-card.featured .price-desc { color: var(--white); }
+
+  .badge {
+    position: absolute;
+    top: -14px;
+    right: 30px;
+    background: var(--gold);
+    color: var(--navy-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 30px;
+    letter-spacing: 0.03em;
+  }
+
+  .price-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+
+  .price-desc {
+    color: var(--gray);
+    font-size: 0.92rem;
+    margin-bottom: 24px;
+    min-height: 40px;
+  }
+
+  .price-amount {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .price-card.featured .price-amount { color: var(--gold-light); }
+
+  .price-sub {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-bottom: 26px;
+  }
+
+  .price-card.featured .price-sub { color: rgba(255,255,255,0.65); }
+
+  .price-list {
+    list-style: none;
+    margin-bottom: 30px;
+    flex-grow: 1;
+  }
+
+  .price-list li {
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.93rem;
+    display: flex;
+    gap: 10px;
+    color: var(--ink);
+  }
+
+  .price-card.featured .price-list li {
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.88);
+  }
+
+  .price-list li::before {
+    content: "◆";
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  .setup-note {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--gray);
+    font-size: 0.95rem;
+  }
+
+  /* PROCESS */
+  .process-strip {
+    background: var(--light-bg);
+  }
+
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .process-card {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .process-num {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--gold-light);
+    font-weight: 800;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+  }
+
+  .process-card h4 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+  }
+
+  .process-card p {
+    color: var(--gray);
+    font-size: 0.92rem;
+  }
+
+  /* CTA FINAL */
+  .cta-final {
+    background: linear-gradient(135deg, #123064, var(--navy-dark));
+    color: var(--white);
+    text-align: center;
+    border-radius: 28px;
+    margin: 0 24px;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: "";
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(212,162,76,0.2), transparent 70%);
+    top: -100px; left: -100px;
+  }
+
+  .cta-final h2 {
+    color: var(--white);
+    font-size: 2.3rem;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-final p {
+    color: rgba(255,255,255,0.8);
+    max-width: 560px;
+    margin: 0 auto 34px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-final .hero-actions {
+    justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy-dark);
+    color: rgba(255,255,255,0.6);
+    padding: 50px 0 30px;
+    margin-top: 100px;
+  }
+
+  .footer-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 24px;
+  }
+
+  .footer-logo {
+    color: var(--white);
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 26px;
+  }
+
+  .footer-links a { font-size: 0.9rem; }
+  .footer-links a:hover { color: var(--gold-light); }
+
+  footer .bottom {
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 980px) {
+    .problem-grid, .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: repeat(2, 1fr); }
+    .about-grid { grid-template-columns: 1fr; }
+    .price-card.featured { transform: none; }
+    .hero h1 { font-size: 2.4rem; }
+    .nav-links { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 80px 0 90px; }
+    .hero h1 { font-size: 2rem; }
+    section { padding: 70px 0; }
+    .process-grid { grid-template-columns: 1fr; }
+    .cta-final { margin: 0 16px; padding: 60px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="logo">✦ Inbox <span>Alchemy</span></a>
+    <div class="nav-links">
+      <a href="#features">Services</a>
+      <a href="#about">About</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#process">Process</a>
+      <a href="#contact" class="nav-cta">Get a Free Audit</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <span class="tag-pill">⚡ For Businesses Getting 20+ Inquiries/Month</span>
+      <h1>Every Slow Reply Is a <em>Client You Just Handed</em> to a Competitor</h1>
+      <p class="lead">Inbox Alchemy turns your neglected emails, contact forms, and DMs into booked appointments — with AI-assisted drafting, human quality control, and follow-up sequences that never let a lead go cold again.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary">Claim Your Free Inbox Audit →</a>
+        <a href="#pricing" class="btn btn-outline">See Pricing</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <strong>&lt; 5 min</strong>
+          <span>Average reply time, guaranteed</span>
+        </div>
+        <div>
+          <strong>3–5x</strong>
+          <span>More booked leads per month</span>
+        </div>
+        <div>
+          <strong>Weekly</strong>
+          <span>Conversion reporting, always visible</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="problem-strip">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">The Hidden Leak</span>
+      <h2>You're Not Losing Leads. You're Losing Revenue in Silence.</h2>
+      <p>Most businesses never see the cost of a slow reply — it just quietly walks to a competitor's inbox instead.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="num">78%</div>
+        <p>of buyers choose the first business that responds — not the best one.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">$0</div>
+        <p>revenue from every inquiry that sits unread for more than an hour.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">30%+</div>
+        <p>of monthly inbound inquiries typically go completely unanswered.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">What We Do</span>
+      <h2>A Complete Lead Conversion System</h2>
+      <p>Not a chatbot. Not a generic autoresponder. A steady, dependable engine built around your real inbox and your real clients.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">✉</div>
+        <h3>AI-Assisted, Human-Reviewed Replies</h3>
+        <p>Every message gets a fast, personalized draft — reviewed by a real person before it ever reaches your client.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱</div>
+        <h3>Sub-5-Minute Response Times</h3>
+        <p>We monitor email, contact forms, and social messages so the first response goes out while intent is still hot.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <h3>Automated Follow-Up Sequences</h3>
+        <p>Leads who don't convert immediately get nurtured with a steady, non-pushy sequence until they're ready to book.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Weekly Conversion Reporting</h3>
+        <p>See exactly how many inquiries came in, how fast we replied, and how many turned into booked revenue.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧩</div>
+        <h3>Multi-Channel Coverage</h3>
+        <p>Email, website forms, Facebook, Instagram, and Google Business messages — all handled from one consistent system.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡</div>
+        <h3>Brand-Matched Voice</h3>
+        <p>Every reply is trained on your tone, services, and pricing so clients feel like they're talking to your team.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <span class="section-label">Why Inbox Alchemy</span>
+        <h2>Built for Businesses That Are Busy Doing the Work — Not Answering Messages</h2>
+        <p>Clinics, home-service companies, legal practices, agencies, and consultants don't lose clients because their service is bad. They lose them because a message sat unanswered for six hours while a competitor replied in six minutes.</p>
+        <p>We built Inbox Alchemy to close that gap permanently — with a steady, reliable process that runs every single day, whether you're slammed or slow.</p>
+        <ul class="about-list">
+          <li>Dedicated response protocol tailored to your industry</li>
+          <li>Quality-controlled by a human on every single message</li>
+          <li>Transparent weekly reporting tied to real conversions</li>
+          <li>Scales with your inquiry volume — no guesswork pricing</li>
+        </ul>
+      </div>
+      <div class="about-visual">
+        <div class="stat-box">
+          <div>
+            <strong>500+</strong>
+            <span>Inquiries Rescued Monthly (avg. client)</span>
+          </div>
+          <div>
+            <strong>92%</strong>
+            <span>Client Satisfaction with Response Speed</span>
+          </div>
+          <div>
+            <strong>4.2x</strong>
+            <span>Avg. Increase in Booked Consultations</span>
+          </div>
+          <div>
+            <strong>7 Days</strong>
+            <span>From Signup to Live System</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Investment</span>
+      <h2>Simple, Steady Pricing That Scales With You</h2>
+      <p>A one-time setup fee builds your system. A monthly retainer keeps it running, monitored, and reported on — every single week.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Starter</h3>
+        <p class="price-desc">For businesses handling 20–50 inquiries/month on one channel.</p>
+        <div class="price-amount">$500</div>
+        <div class="price-sub">one-time setup + $750/mo retainer</div>
+        <ul class="price-list">
+          <li>Single-channel monitoring (email or forms)</li>
+          <li>Human-reviewed AI response drafting</li>
+          <li>Basic follow-up sequence (2 touches)</li>
+          <li>Weekly conversion summary</li>
+        </ul>
+        <a href="#contact" class="btn btn-dark">Get Started</a>
+      </div>
+      <div class="price-card featured">
+        <span class="badge">Most Popular</span>
+        <h3>Growth</h3>
+        <p class="price-desc">For multi-channel businesses with 50–150 inquiries/month.</p>
+        <div class="price-amount">$950</div>
+        <div class="price-sub">one-time setup + $1,500/mo retainer</div>
+        <ul class="price-list">
+          <li>Email, forms, and social message coverage</li>
+          <li>Sub-5-minute response commitment</li>
+          <li>Extended follow-up sequence (4–5 touches)</li>
+          <li>Detailed weekly reporting + strategy notes</li>
+          <li>Quarterly performance review call</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary">Get Started</a>
+      </div>
+      <div class="price-card">
+        <h3>Scale</h3>
+        <p class="price-desc">For high-volume businesses over 150 inquiries/month across teams.</p>
+        <div class="price-amount">$1,500</div>
+        <div class="price-sub">one-time setup + $2,500/mo retainer</div>
+        <ul class="price-list">
+          <li>Full omnichannel coverage & routing</li>
+          <li>Priority response SLA (under 3 minutes)</li>
+          <li>Custom-length nurture sequences</li>
+          <li>Dedicated account strategist</li>
+          <li>Monthly live reporting session</li>
+        </ul>
+        <a href="#contact" class="btn btn-dark">Get Started</a>
+      </div>
+    </div>
+    <p class="setup-note">All plans include a 14-day performance check-in. Pricing scales with inquiry volume — contact us for a custom quote if you're off these ranges.</p>
+  </div>
+</section>
+
+<section class="process-strip" id="process">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">How It Works</span>
+      <h2>Up and Running in Days, Not Months</h2>
+      <p>A dependable, four-step rollout — every step tracked and confirmed before we move to the next.</p>
+    </div>
+    <div class="process-grid">
+      <div class="process-card">
+        <div class="process-num">1</div>
+        <h4>Free Inbox Audit</h4>
+        <p>We review your current response times and identify exactly where leads are slipping through.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-num">2</div>
+        <h4>System Setup</h4>
+        <p>We connect your channels, train your voice, and build your follow-up sequences.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-num">3</div>
+        <h4>Go Live</h4>
+        <p>Every inquiry gets a fast, human-reviewed response — monitored daily by our team.</p>
+      </div>
+      <div class="process-card">
+        <div class="process-num">4</div>
+        <h4>Report & Refine</h4>
+        <p>You get a weekly report showing replies, conversions, and revenue recovered — then we optimize.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="cta-final">
+      <h2>Stop Losing Revenue to Slow Replies — Starting This Week</h2>
+      <p>Book a free inbox audit and we'll show you exactly how many leads you're losing right now, and what it would take to recover them.</p>
+      <div class="hero-actions">
+        <a href="mailto:hello@inboxalchemy.co" class="btn btn-primary">Book My Free Audit →</a>
+        <a href="tel:+10000000000" class="btn btn-outline">Call Us Directly</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-logo">✦ Inbox Alchemy</div>
+      <div class="footer-links">
+        <a href="#features">Services</a>
+        <a href="#about">About</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="bottom">
+      &copy; 2024 Inbox Alchemy. Turning neglected inquiries into booked revenue, every single week.
+    </div>
+  </div>
+</footer>
+
+<script>(function(){var E='APP_BASE_URL/functions/siteChat',S='inbox-alchemy';var b=document.createElement('div');b.style.cssText='position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:#00ff41;color:#0a0a12;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 0 20px rgba(0,255,65,0.5);z-index:99999';b.innerHTML='\u{1F4AC}';document.body.appendChild(b);var p=document.createElement('div');p.style.cssText='position:fixed;bottom:90px;right:20px;width:320px;max-height:400px;background:#0a0a12;border:2px solid #00ff41;border-radius:12px;display:none;flex-direction:column;z-index:99999;overflow:hidden;font-family:sans-serif';p.innerHTML='<div style="padding:12px;background:#00ff41;color:#0a0a12;font-weight:bold;font-size:14px">Chat with us</div><div id="cm" style="flex:1;overflow-y:auto;padding:12px;max-height:280px"></div><div style="padding:8px;display:flex;gap:4px"><input id="ci" style="flex:1;padding:8px;border:1px solid #00ff41;border-radius:4px;background:#111;color:#fff" placeholder="Type a message..."/><button id="cs" style="padding:8px 12px;background:#00ff41;color:#0a0a12;border:none;border-radius:4px;cursor:pointer;font-weight:bold">Send</button></div>';document.body.appendChild(p);var m=p.querySelector('#cm');function a(t,w){var d=document.createElement('div');d.style.cssText='padding:6px 10px;margin:4px 0;border-radius:8px;max-width:85%;font-size:13px;color:#fff;'+(w==='bot'?'background:#1a3a1a':'background:#003a3a;margin-left:auto');d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}b.onclick=function(){p.style.display=p.style.display==='none'?'flex':'none';if(!m.children.length)a('Hi! Ask me anything about our business.','bot');};function s(){var i=p.querySelector('#ci'),t=i.value.trim();if(!t)return;a(t,'user');i.value='';a('...','bot');fetch(E,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:S,message:t})}).then(function(r){return r.json();}).then(function(d){var l=m.lastChild;if(l)l.remove();a(d.reply||'Sorry, I did not get that.','bot');}).catch(function(){var l=m.lastChild;if(l)l.remove();a('Connection error. Please try again later.','bot');});}p.querySelector('#cs').onclick=s;p.querySelector('#ci').onkeydown=function(e){if(e.key==='Enter')s();};})();</script><script>(function(){var L='APP_BASE_URL/Checkout?productId=6ab31a1a40d0f82c5224ce7a';var b=document.createElement('a');b.href=L;b.target='_blank';b.rel='noopener noreferrer';b.style.cssText='position:fixed;bottom:20px;left:20px;padding:10px 18px;border-radius:8px;background:#00ff41;color:#0a0a12;font-family:sans-serif;font-weight:bold;font-size:14px;text-decoration:none;box-shadow:0 0 20px rgba(0,255,65,0.5);z-index:99999';b.innerHTML='\u{1F4B0} Buy Now';document.body.appendChild(b);})();</script></body>
+</html>
